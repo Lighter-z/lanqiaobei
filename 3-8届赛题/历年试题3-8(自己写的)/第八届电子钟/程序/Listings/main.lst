@@ -1,0 +1,171 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              04/06/2018 16:25:47 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: E:\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.ls
+                    -t) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<stc15f2k60s2.h>
+   2          #include<intrins.h>
+   3          #include<define.c>
+   4          #include<ds18b20.c>
+   5          #include<ds1302.c>
+   6          #include<key.c>
+   7          #include<display.c>
+   8          
+   9          void banzi_init() //板子初始化
+  10          {
+  11   1        P2 = 0xa0;
+  12   1        P0 = 0x00;//关闭蜂鸣器，继电器
+  13   1        
+  14   1        P2 = 0x80;
+  15   1        P0 = 0xff;//关闭LED
+  16   1        
+  17   1        P2 = 0xc0;
+  18   1        P0 = 0xff;//关闭数码管段选
+  19   1        P2 = 0xff;
+  20   1        P0 = 0xff;//关闭数码管位选
+  21   1      }
+  22          
+  23          void xianshi()
+  24          {
+  25   1        P2 = 0xc0;
+  26   1        P0 = 0x01;
+  27   1        P2 = 0xff;
+  28   1        P0 = seven_seg[yi];
+  29   1        Delay1ms();//显示第一个数码管
+  30   1        
+  31   1        P2 = 0xc0;
+  32   1        P0 = 0x02;
+  33   1        P2 = 0xff;
+  34   1        P0 = seven_seg[er];
+  35   1        Delay1ms();//显示第二个数码管
+  36   1        
+  37   1        P2 = 0xc0;
+  38   1        P0 = 0x04;
+  39   1        P2 = 0xff;
+  40   1        P0 = seven_seg[san];
+  41   1        Delay1ms();
+  42   1        
+  43   1        P2 = 0xc0;
+  44   1        P0 = 0x08;
+  45   1        P2 = 0xff;
+  46   1        P0 = seven_seg[si];
+  47   1        Delay1ms();
+  48   1        
+  49   1        P2 = 0xc0;
+  50   1        P0 = 0x10;
+  51   1        P2 = 0xff;
+  52   1        P0 = seven_seg[wu];
+  53   1        Delay1ms();
+  54   1        
+C51 COMPILER V9.56.0.0   MAIN                                                              04/06/2018 16:25:47 PAGE 2   
+
+  55   1        P2 = 0xc0;
+  56   1        P0 = 0x20;
+  57   1        P2 = 0xff;
+  58   1        P0 = seven_seg[liu];
+  59   1        Delay1ms();
+  60   1        
+  61   1        P2 = 0xc0;
+  62   1        P0 = 0x40;
+  63   1        P2 = 0xff;
+  64   1        P0 = seven_seg[qi];
+  65   1        Delay1ms();
+  66   1        
+  67   1        P2 = 0xc0;
+  68   1        P0 = 0x80;
+  69   1        P2 = 0xff;
+  70   1        P0 = seven_seg[ba];
+  71   1        Delay1ms();
+  72   1        
+  73   1        P2 = 0xc0;
+  74   1        P0 = 0xff;
+  75   1        P2 = 0xff;
+  76   1        P0 = 0xff;
+  77   1        Delay1ms();//消影
+  78   1      }
+  79          
+  80          void Timer0Init(void)   //1毫秒@11.0592MHz
+  81          {
+  82   1        AUXR |= 0x80;   //定时器时钟1T模式
+  83   1        TMOD &= 0xF0;   //设置定时器模式
+  84   1        TL0 = 0xCD;   //设置定时初值
+  85   1        TH0 = 0xD4;   //设置定时初值
+  86   1        TF0 = 0;    //清除TF0标志
+  87   1        TR0 = 1;    //定时器0开始计时
+  88   1        EA = 1;
+  89   1        ET0 = 1;
+  90   1      }
+  91          
+  92          void timer0()interrupt 1
+  93          {
+  94   1        cp++;
+  95   1        if(cp >= 200)
+  96   1        {
+  97   2          cp = 0;
+  98   2          if(naozhongkai == 1)
+  99   2          {
+ 100   3            cp2++;
+ 101   3            if(cp2 >= 25)
+ 102   3            {
+ 103   4              cp2 = 0;
+ 104   4              naozhongkai = 0;
+ 105   4            }
+ 106   3            if(shanshuo == 0)
+ 107   3            {
+ 108   4              P2 = 0x80;
+ 109   4              P0 = 0xfe;
+ 110   4              shanshuo = 1;
+ 111   4            }
+ 112   3            else if(shanshuo == 1)
+ 113   3            {
+ 114   4              shanshuo = 0;
+ 115   4              P2 = 0x80;
+ 116   4              P0 = 0xff;
+C51 COMPILER V9.56.0.0   MAIN                                                              04/06/2018 16:25:47 PAGE 3   
+
+ 117   4            }
+ 118   3          }
+ 119   2          else if(naozhongkai == 0)
+ 120   2          {
+ 121   3            P2 = 0x80;
+ 122   3            P0 = 0xff;
+ 123   3          }
+ 124   2        }
+ 125   1      }
+ 126          
+ 127          void main()
+ 128          {
+ 129   1        banzi_init();
+ 130   1        DS1302_init();
+ 131   1        Timer0Init();
+ 132   1        while(1)
+ 133   1        {
+ 134   2          wendu = DS18B20_get();
+ 135   2          DS1302_Read();
+ 136   2          sec = shijian[0];
+ 137   2          min = shijian[1];
+ 138   2          hour = shijian[2];
+ 139   2          keyscan();
+ 140   2          display();
+ 141   2          xianshi();
+ 142   2        }
+ 143   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1564    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     29    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

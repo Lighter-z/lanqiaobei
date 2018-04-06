@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj" 
+TO ".\Objects\温度记录器" 
+PRINT(".\Listings\温度记录器.m51") RAMSIZE(256) 

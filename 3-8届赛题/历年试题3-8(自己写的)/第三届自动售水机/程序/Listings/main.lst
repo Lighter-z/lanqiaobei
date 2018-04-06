@@ -1,0 +1,111 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              03/21/2018 16:04:32 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: E:\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.ls
+                    -t) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<stc15f2k60s2.h>
+   2          #include<intrins.h>
+   3          #include<define.c>
+   4          #include<key.c>
+   5          
+   6          void banzi_init()
+   7          {
+   8   1        P2 = 0xa0;
+   9   1        P0 = 0x00;
+  10   1        
+  11   1        P2 = 0x80;
+  12   1        P0 = 0xff;
+  13   1        
+  14   1        P2 = 0xc0;
+  15   1        P0 = 0xff;
+  16   1        P2 = 0xff;
+  17   1        P0 = 0xff;
+  18   1      }
+  19          
+  20          void xianshi()
+  21          {
+  22   1        P2 = 0xc0;
+  23   1        P0 = 0x01;
+  24   1        P2 = 0xff;
+  25   1        P0 = seven_seg[yi];
+  26   1        Delay1ms();
+  27   1        
+  28   1        P2 = 0xc0;
+  29   1        P0 = 0x02;
+  30   1        P2 = 0xff;
+  31   1        P0 = seven_seg[er];
+  32   1        Delay1ms();
+  33   1        
+  34   1        P2 = 0xc0;
+  35   1        P0 = 0x04;
+  36   1        P2 = 0xff;
+  37   1        P0 = seven_seg[san];
+  38   1        Delay1ms();
+  39   1        
+  40   1        P2 = 0xc0;
+  41   1        P0 = 0x08;
+  42   1        P2 = 0xff;
+  43   1        P0 = seven_seg[si];
+  44   1        Delay1ms();
+  45   1        
+  46   1        P2 = 0xc0;
+  47   1        P0 = 0x10;
+  48   1        P2 = 0xff;
+  49   1        P0 = seven_seg[wu];
+  50   1        Delay1ms();
+  51   1        
+  52   1        P2 = 0xc0;
+  53   1        P0 = 0x20;
+  54   1        P2 = 0xff;
+C51 COMPILER V9.56.0.0   MAIN                                                              03/21/2018 16:04:32 PAGE 2   
+
+  55   1        P0 = seven_seg[liu];
+  56   1        Delay1ms();
+  57   1        
+  58   1        P2 = 0xc0;
+  59   1        P0 = 0x40;
+  60   1        P2 = 0xff;
+  61   1        P0 = seven_seg[qi];
+  62   1        Delay1ms();
+  63   1        
+  64   1        P2 = 0xc0;
+  65   1        P0 = 0x80;
+  66   1        P2 = 0xff;
+  67   1        P0 = seven_seg[ba];
+  68   1        Delay1ms();
+  69   1        
+  70   1        P2 = 0xc0;
+  71   1        P0 = 0xff;
+  72   1        P2 = 0xff;
+  73   1        P0 = 0xff;
+  74   1        Delay1ms();
+  75   1      }
+  76          
+  77          void main()
+  78          {
+  79   1        banzi_init();
+  80   1        while(1)
+  81   1        {
+  82   2          keyscan();
+  83   2          xianshi();
+  84   2        }
+  85   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    248    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

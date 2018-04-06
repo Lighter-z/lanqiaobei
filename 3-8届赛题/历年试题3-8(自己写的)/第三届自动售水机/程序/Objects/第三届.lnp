@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj" 
+TO ".\Objects\第三届" 
+PRINT(".\Listings\第三届.m51") RAMSIZE(256) 
