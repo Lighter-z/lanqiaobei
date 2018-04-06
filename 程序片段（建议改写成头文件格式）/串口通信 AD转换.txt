@@ -1,0 +1,146 @@
+//iicwrite(0x40,0xf0);   //用DA转换的时候只要while（1）上面写一句这个就行了，
+                         //记得把下面的temp=0.39*temp;屏蔽了
+
+sbit scl=P2^0;
+sbit sda=P2^1;
+
+void iicwrite(uchar add,uchar dat);
+uchar iicread(uchar add);
+
+while（1）上
+         uchar num;
+        
+        /*这三行程序没有用*/
+	//iicwrite(0x00,0);
+	//num=iicread(0x00);//
+	//iicwrite(0x00,num+1)//
+
+while（1）内
+    		num=iicread(0x01);//用IIC时注释掉;01是光敏 03是滑变rb2
+		liu=num/100;qi=num%100/10;ba=num%10;
+		display1(yi,er);
+		display2(san,si);
+		display3(wu,liu);
+		display4(qi,ba);
+
+子程序：
+
+void iicdelay(uchar m)
+{
+	do
+	{
+		_nop_();
+	}
+	while(m--);
+}
+
+
+void iicstrat()
+{
+	sda=1;
+	_nop_();
+	scl=1;
+	_nop_();
+	sda=0;
+	_nop_();
+	scl=0;
+	_nop_();
+}
+
+
+void iicstop()
+{
+	sda=0;
+	_nop_();
+	scl=1;
+	_nop_();
+	sda=1;
+	_nop_();
+}
+
+
+void writebyte(uchar dat)
+{
+	uchar i;
+	for(i=0;i<8;i++)
+	{
+		scl=0;
+		sda=dat&0x80;
+		scl=1;
+		dat<<=1;
+	}
+	scl=0;
+}
+
+
+uchar iicreadbyte()
+{
+	uchar dat;
+	uchar i;
+	for(i=0;i<8;i++)
+	{
+		scl=1;
+		iicdelay(5);
+		dat<<=1;
+		if(sda)
+		{
+			dat|=0x01;
+		}
+		scl=0;
+	}
+	
+	return dat;
+}
+
+uchar ack()
+{
+	scl=1;
+	iicdelay(5);
+	if(sda==1)
+	{
+		scl=0;
+		iicstop();
+		return 0;
+	}
+	else 
+	{
+		scl=0;
+		return 1;
+	}
+}
+
+//下面这两行程序官网的驱动里面没有//
+
+void iicwrite(uchar add,uchar dat)
+{
+	iicstrat();
+	writebyte(0xa0);//iic用a0，ad用90
+	ack();
+	writebyte(add);
+	ack();
+	writebyte(dat);
+	ack();
+	iicstop();
+}
+
+uchar iicread(uchar add)
+{
+	uchar temp;
+	
+	iicstrat();
+	writebyte(0xa0);//iic用a0，ad用90
+	ack();
+	writebyte(add);
+	ack();
+	iicstop();
+	
+	iicstrat();
+	writebyte(0xa1);//iic用a1，ad用91
+	ack();
+	temp=iicreadbyte();
+	iicstop();
+	
+	temp=0.39*temp;//用iic是屏蔽这条
+	
+	return temp;
+}

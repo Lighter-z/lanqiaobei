@@ -1,0 +1,117 @@
+写在define下面
+sbit CE=P1^3;
+sbit IO=P2^3;
+sbit SCLK=P1^7;
+
+uchar code ds[]={55,59,23,10,10,1,16};//放置初值 秒，分，时，日，月，星期，年     根据题目要求自己设置初值
+uchar shijian[7];
+
+函数定义:
+void writebyte(uchar dat);
+void write(uchar add,uchar dat);
+void dsinit();
+uchar read(uchar add);
+uchar readbyte();
+void readtime();
+
+while(1)上写：
+	dsinit();
+
+while(1)内写：
+	while(1)
+	{
+		readtime();
+		yi=shijian[2]/10;er=shijian[2]%10;san=10;
+		si=shijian[1]/10;wu=shijian[1]%10;liu=10;
+		qi=shijian[0]/10;ba=shijian[0]%10;
+		
+		display1(yi,er);
+		display2(san,si);
+		display3(wu,liu);
+		display4(qi,ba);
+	}
+
+子函数
+void readtime()
+{
+	uchar i;
+	uchar add=0x81;
+	write(0x8e,0x00);
+	for(i=0;i<7;i++)
+	{
+		shijian[i]=read(add);
+		add=add+2;
+	}
+	write(0x8e,0x80);	
+}
+
+
+uchar read(uchar add)
+{
+	uchar i,temp;
+	uchar dat1,dat2;
+	CE=0;
+	SCLK=0;
+	CE=1;
+	writebyte(add);
+	for(i=0;i<8;i++)
+	{
+		SCLK=0;
+		temp>>=1;
+		if(IO)
+		{
+			temp|=0x80;
+		}
+		SCLK=1;
+	}
+	
+	IO=0;
+	
+	dat1=temp/16;//0XFF 1111 1111
+	dat2=temp%16;
+	
+	temp=dat1*10+dat2;
+	
+	return temp;
+}
+
+
+void writebyte(uchar dat)
+{
+	uchar i;
+	for(i=0;i<8;i++)
+	{
+		SCLK=0;
+		IO=dat&0x01;
+		SCLK=1;
+		dat>>=1;
+	}
+}
+
+void write(uchar add,uchar dat)
+{
+	uchar num;
+	
+	CE=0;
+	SCLK=0;
+	CE=1;
+	writebyte(add);
+	num=(dat/10<<4)|(dat%10);// 55
+	writebyte(num);
+	CE=0;
+}
+
+
+void dsinit()
+{
+	uchar i;
+	uchar add=0x80;
+	write(0x8e,0x00);
+	for(i=0;i<7;i++)
+	{
+		write(add,ds[i]);
+		add=add+2;
+	}
+	write(0x8e,0x80);
+	
+}

@@ -1,0 +1,21 @@
+毫秒级延时函数，延时几毫秒void Delay_Ms(int ms)括号里写几
+使用前程序开头要加#include <intrins.h>
+void Delay_Ms(int ms)
+{
+     int i;
+	 do{
+	      i = MAIN_Fosc / 96000; 
+		  while(--i);   //96T per loop
+     }while(--ms);
+}
+
+void Delay5us()
+{
+	#if MAIN_Fosc == 11059200
+		_nop_();
+	#elif MAIN_Fosc == 12000000
+		_nop_();
+	#elif MAIN_Fosc == 22118400
+		_nop_(); _nop_(); _nop_();
+	#endif
+}

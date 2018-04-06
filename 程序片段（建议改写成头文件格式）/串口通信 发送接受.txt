@@ -1,0 +1,123 @@
+#include<STC15F2K60S2.H>
+
+#define uchar unsigned char 
+#define uint unsigned int	
+	
+uchar flag,num;
+
+unsigned char txbuffer1[] = "IAP15F2 USART TEST PROGRAM\r\n";//具体要发送什么，具体再编写
+unsigned char enter[] = {"\r\n"};                            //具体要发送什么，具体再编写
+
+void delayms(int ms);
+void allinit();
+void keyscan();
+
+void UartInit(void);
+//两个向电脑发送字符的程序
+void uart_tx(unsigned char *p,unsigned char length);//第一种写法
+void send(unsigned char *p);                        //第二种写法
+
+void main()
+{
+	UartInit();
+	
+	EA=1;
+	ES=1;
+	
+	allinit();
+	while(1)
+	{
+		keyscan();
+	}
+}
+
+
+void ser() interrupt 4   //串口中断   //电脑发送数据
+{
+	RI=0;
+	num=SBUF;              
+	if(num=='$')           //如果电脑发送字符'$',单片机执行括号里的程序
+	{
+		P2=0X80; P0=0X55;
+	}
+}
+
+void uart_tx(unsigned char *p,unsigned char length)
+{
+	unsigned char i;
+	for(i=0;i<length;i++)
+	{
+		SBUF = *(p+i);
+		while(TI == 0);
+		TI = 0;
+	}
+}
+
+void send(unsigned char *p)
+{
+	unsigned char index=0;
+	do
+	{
+		SBUF=p[index++];
+		while(TI == 0);
+		TI = 0;
+	}
+	while(p[index]!=0);
+}
+
+void UartInit(void)		//9600bps@11.0592MHz
+{
+	SCON = 0x50;		//8位数据,可变波特率
+	AUXR |= 0x40;		//定时器1时钟为Fosc,即1T//0100 0000
+	AUXR &= 0xFE;		//串口1选择定时器1为波特率发生器//111 1110
+	TMOD &= 0x0F;		//设定定时器1为16位自动重装方式
+	TL1 = 0xE0;		//设定定时初值
+	TH1 = 0xFE;		//设定定时初值
+	ET1 = 0;		//禁止定时器1中断
+	TR1 = 1;		//启动定时器1
+}
+
+
+void keyscan()
+{
+	if(P32==0)
+	{
+		delayms(5);
+		if(P32==0)
+		{
+			uart_tx(enter,4); 
+		}
+		while(!P32);
+	}
+	
+	else if(P33==0)
+	{
+		delayms(5);
+		if(P33==0)
+		{
+			send(txbuffer1);
+		}
+		while(!P33);
+	}
+}
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void allinit()
+{
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0XFF;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}

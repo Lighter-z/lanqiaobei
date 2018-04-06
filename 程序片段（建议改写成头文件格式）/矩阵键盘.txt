@@ -1,0 +1,112 @@
+程序开始定义一个变量
+
+uchar temp;
+
+void keyscan16()
+{
+	P3=0X7F;P4=0XEF;//第一列按键检测
+	temp=P3;
+	temp=temp&0x0f;//0111 1110  &  0000 1111 =  0000 1110
+	if(temp!=0x0f)
+	{
+		delayms(5);
+		temp=P3;
+		temp=temp&0x0f;
+		if(temp!=0x0f)
+		{
+			temp=P3;
+			switch(temp)
+			{
+				case 0x7e :P0=0X00;break;//case按下第一个按键：需要产生的现象
+				case 0x7d :P0=0XFF;break;
+				case 0x7b :P0=0X55;break;
+				case 0x77 :P0=0X0F;break;
+			}
+			while(temp!=0x0f)
+			{
+				temp=P3;
+				temp=temp&0x0f;
+			}
+		}
+	}
+	
+	
+	P3=0XBF;P4=0XFB;
+	temp=P3;
+	temp=temp&0x0f;//0111 1110  &  0000 1111 =  0000 1110
+	if(temp!=0x0f)
+	{
+		delayms(5);
+		temp=P3;
+		temp=temp&0x0f;
+		if(temp!=0x0f)
+		{
+			temp=P3;
+			switch(temp)
+			{
+				case 0xbe :P0=0X0F;break;
+				case 0xbd :P0=0X00;break;
+				case 0xbb :P0=0X55;break;
+				case 0xb7 :P0=0XFF;break;
+			}
+			while(temp!=0x0f)
+			{
+				temp=P3;
+				temp=temp&0x0f;
+			}
+		}
+	}
+	
+	P4=0XFF;P3=0XDF;
+	temp=P3;
+	temp=temp&0x0f;//0111 1110  &  0000 1111 =  0000 1110
+	if(temp!=0x0f)
+	{
+		delayms(5);
+		temp=P3;
+		temp=temp&0x0f;
+		if(temp!=0x0f)
+		{
+			temp=P3;
+			switch(temp)
+			{
+				case 0xDe :P0=0XF0;break;
+				case 0xDd :P0=0XFC;break;
+				case 0xDb :P0=0XF3;break;
+				case 0xD7 :P0=0XFF;break;
+			}
+			while(temp!=0x0f)
+			{
+				temp=P3;
+				temp=temp&0x0f;
+			}
+		}
+	}
+	
+	
+	P3=0XEF;
+	temp=P3;
+	temp=temp&0x0f;//0111 1110  &  0000 1111 =  0000 1110
+	if(temp!=0x0f)
+	{
+		delayms(5);
+		temp=P3;
+		temp=temp&0x0f;
+		if(temp!=0x0f)
+		{
+			temp=P3;
+			switch(temp)
+			{
+				case 0xEe :P0=0XF0;break;
+				case 0xEd :P0=0XFC;break;
+				case 0xEb :P0=0XF3;break;
+				case 0xE7 :P0=0XFF;break;
+			}
+			while(temp!=0x0f)
+			{
+				temp=P3;
+				temp=temp&0x0f;
+			}
+		}
+	}
+}

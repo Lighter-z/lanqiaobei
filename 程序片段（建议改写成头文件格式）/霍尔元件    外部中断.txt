@@ -1,0 +1,149 @@
+第一个程序没有用中断写第二个用的外部中断写的
+可以通过第二个程序学习一下如何使用外部中断
+
+******************************************************
+***需要先用杜邦线把HELL脚和想要用来检测的脚连接起来***
+******************************************************
+/*
+#include<STC15F2K60S2.H>
+
+#define uchar unsigned char 
+#define uint unsigned int	
+
+uchar code tab[]={0XC0,0XF9,0XA4,0XB0,0X99,0X92,0X82,0XF8,0X80,0X90,0XBF,0XFF};
+uchar yi,er,san,si,wu ,liu,qi,ba;
+uchar num=0;
+
+void delayms(int ms);
+void allinit();
+void display4(uchar qi,uchar ba);
+
+void main()
+{
+	allinit();
+	qi=0;ba=0;
+	while(1)
+	{
+		if(P33==0)//P33脚是通过杜邦先连接到的
+		{
+			num=num+1;
+			while(!P33);
+		}
+		qi=num/10;ba=num%10;
+		display4(qi,ba);
+	}
+}
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void allinit()
+{
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0XFF;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}
+
+void display4(uchar qi,uchar ba)
+{
+		P2=0XC0;//打开位选573   U8
+		P0=0X40;//选择第一个数码管
+		P2=0XFF;//打开段选573   U7
+		P0=tab[qi];
+		delayms(1);
+		
+		P2=0XC0;//打开位选573   U8
+		P0=0X80;//选择第一个数码管
+		P2=0XFF;//打开段选573   U7
+		P0=tab[ba];
+		delayms(1);
+}
+*/
+
+
+
+
+#include<STC15F2K60S2.H>
+
+#define uchar unsigned char 
+#define uint unsigned int	
+
+uchar code tab[]={0XC0,0XF9,0XA4,0XB0,0X99,0X92,0X82,0XF8,0X80,0X90,0XBF,0XFF};
+uchar yi,er,san,si,wu ,liu,qi,ba;
+uchar num=0;
+
+void delayms(int ms);
+void allinit();
+void display4(uchar qi,uchar ba);
+
+void main()
+{
+	IE1  = 0;	//外中断1标志位
+	EX1 = 1;	//INT1 Enable
+	IT1 = 1;		//INT1 下降沿中断	
+	EA=1;//开中断
+	
+	
+	allinit();
+	qi=0;ba=0;
+	while(1)
+	{
+		qi=num/10;ba=num%10;
+		display4(qi,ba);
+	}
+}
+
+void INT1_int (void) interrupt 2	
+{
+	IE1  = 0;	
+	num++;	
+}
+
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void allinit()
+{
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0XFF;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}
+
+void display4(uchar qi,uchar ba)
+{
+		P2=0XC0;//打开位选573   U8
+		P0=0X40;//选择第一个数码管
+		P2=0XFF;//打开段选573   U7
+		P0=tab[qi];
+		delayms(1);
+		
+		P2=0XC0;//打开位选573   U8
+		P0=0X80;//选择第一个数码管
+		P2=0XFF;//打开段选573   U7
+		P0=tab[ba];
+		delayms(1);
+}
+

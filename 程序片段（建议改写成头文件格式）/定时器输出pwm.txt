@@ -1,0 +1,24 @@
+void Timer0() interrupt 1
+{
+	count++;
+	if(count==3)//count等于的值根据占空比具体定这是百分之30的程序
+	{
+		P34=~P34;
+	}
+	if(count==10)
+	{
+		count=0;
+		P34=~P34;
+	}
+}
+
+void timer_chu() //3333微秒@12.000MHz          设置初值根据要求的频率来设置
+{
+	AUXR &= 0x7F;		//定时器时钟12T模式
+	TMOD &= 0xF0;		//设置定时器模式
+	TL0 = 0xA4;		//设置定时初值
+	TH0 = 0xFF;		//设置定时初值
+	TF0 = 0;		//清除TF0标志
+	TR0 = 1;		//定时器0开始计时
+
+}

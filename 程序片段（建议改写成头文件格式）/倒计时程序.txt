@@ -1,0 +1,50 @@
+uchar count=0;
+
+void timer_chu();
+
+void main()
+{
+
+	uint tt=999;
+	allinit();
+	
+	timer_chu();
+	EA=1;
+	ET0=1;
+
+	
+
+
+	/*yi=9;er=9;san=9;*/si=11;wu=11;liu=11;qi=11;ba=11;
+	while(1)
+	{	
+		if(count==20)
+		{count=0;tt--;}
+		
+		yi=tt/100;
+		er=tt%100/10;
+		san=tt%10;
+		
+		
+		keyscan();
+		display1(yi,er);
+		display2(san,si);
+		display3(wu,liu);
+		display4(qi,ba);
+	
+	}
+}
+
+void Timer0() interrupt 1
+{
+	count++;
+}
+
+void timer_chu()//写在主函数外，子函数
+{
+	AUXR &= 0x7F;		//定时器时钟12T模式
+	TMOD &= 0xF0;		//设置定时器模式
+	TL0 = 0x00;		//设置定时初值
+	TH0 = 0x4C;		//设置定时初值
+	TF0 = 0;		//清除TF0标志
+}

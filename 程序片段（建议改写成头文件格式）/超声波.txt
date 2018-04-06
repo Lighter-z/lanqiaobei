@@ -1,0 +1,102 @@
+#define somenop {_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_(); _nop_();}
+sbit TX = P1^0;  //发射引脚
+sbit RX = P1^1;  //接收引脚
+
+unsigned int distance;
+unsigned int intr = 0;
+bit s_flag;
+unsigned int t = 0;
+
+void send_wave(void);
+void Timer0Init(void);
+void Timer1Init(void);
+
+
+
+//while（1）allinit()上面写：
+	Timer0Init();
+        Timer1Init();
+
+	EA = 1;
+	ET0 = 1;  //打开定时器0中断
+
+
+//while（1）内写：
+if(s_flag) // 200毫秒更新一次数据 
+		{
+			s_flag = 0;
+			send_wave();  //发送方波信号
+			TR1 = 1;  //启动计时
+			while((RX == 1) && (TF1 == 0));  //等待收到脉冲
+			TR1 = 0;  //关闭计时		
+			
+			if(TF1 == 1)//发生溢出
+			{
+				TF1 = 0;
+				distance = 9999;  //无返回
+			}
+			else
+			{		
+				t = TH1;// 计算时间  
+				t <<= 8;
+				t |= TL1;
+				distance = (unsigned int)(t*0.017);  //计算距离	
+				distance = distance/12;
+				//t*340   // t/1000000*340/2*100
+			}
+			TH1 = 0;
+			TL1 = 0;
+		}
+		
+		//数据处理  						 
+		liu = distance/100;
+		qi = distance%100/10;
+		ba = distance%10; 
+
+
+
+//子函数：
+void Timer0Init(void)		//2毫秒@11.0592MHz
+{
+	AUXR |= 0x80;		//定时器时钟1T模式
+	TMOD &= 0xF0;		//设置定时器模式
+	TL0 = 0x9A;		//设置定时初值
+	TH0 = 0xA9;		//设置定时初值
+	TF0 = 0;		//清除TF0标志
+	TR0 = 1;		//定时器0开始计时
+}
+
+void Timer1Init(void)		//2毫秒@11.0592MHz
+{
+	AUXR |= 0x40;		//定时器时钟1T模式
+	TMOD &= 0x0F;		//设置定时器模式
+}
+
+//定时器0中断服务函数
+void isr_timer_0(void)  interrupt 1  //默认中断优先级 1
+{
+	TL0 = 0x9A;		//设置定时初值
+	TH0 = 0xA9;		//设置定时初值
+
+	if(++intr == 100)
+	{
+		s_flag = 1;
+		intr = 0;
+  }
+}
+
+//TX引脚发送40KHz方波信号驱动超声波发送探头
+//使用软件延时注意RC振荡器频率
+void send_wave(void)
+{
+	unsigned char i = 8;  //发送8个脉冲
+	
+	do
+	{
+		TX = 1;
+		somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;		
+		TX = 0;
+		somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;somenop;		
+	}
+	while(i--);
+}

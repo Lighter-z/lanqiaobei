@@ -1,0 +1,249 @@
+第一个程序是两行都显示的数组内的字符串，可以根据需要更改数组内的内容
+第二个程序第一行不变，第二行显示的是数组内的具体某个字符
+
+
+
+#include<STC15F2K60S2.H>
+#include "intrins.h"
+
+#define uchar unsigned char 
+#define uint unsigned int	
+
+unsigned char text1[] = "LCD 1602 TEST" ;
+unsigned char text2[] = "TBID:68806699" ;
+
+sbit RS = P2^0;
+sbit RW = P2^1; 
+sbit EN = P1^2;
+
+
+void delayms(int ms);
+void allinit();
+
+void init_1602(void);
+void write_command(unsigned char cmd);
+void write_data(unsigned char dat);
+void dsp_onechar(unsigned char pos,unsigned char c);
+void dsp_string(unsigned char line,unsigned char *p,unsigned char length);
+
+
+void main()
+{
+	allinit();
+	
+	init_1602();
+	delayms(15);
+	
+	dsp_string(0,text1,13);
+	dsp_string(1,text2,12);
+	while(1)
+	{
+	}
+}
+
+void write_command(unsigned char cmd)
+{
+	delayms(5); // check busy flag
+ 	EN = 0;
+ 	RS = 0;
+ 	RW = 0;
+ 	_nop_();
+ 	EN = 1;
+ 	P0 = cmd;
+ 	EN = 0;
+}
+
+void write_data(unsigned char dat)
+{
+ 	delayms(5); //busy flag check 
+	EN = 0;
+ 	RS = 1;
+	RW = 0; 
+	_nop_();
+	EN = 1;
+	P0 = dat;
+	EN = 0;
+	RS = 0;
+}
+
+void dsp_onechar(unsigned char pos,unsigned char c)
+{
+ 	unsigned char p;
+ 	if (pos>=0x10)
+    p=pos+0xb0; //0001 0000   1011 0000 = 1100 0000   //1000 0000 + 0100 0000= 1100 0000
+ 	else 
+    p=pos+0x80; 
+	
+ 	write_command(p);
+ 	write_data(c); 
+}
+
+void dsp_string(unsigned char line,unsigned char *p,unsigned char length)
+{
+ 	unsigned char l,i;
+ 	l=line<<4;//0000 0001  //0001  0000 
+ 	for (i=0;i<length;i++)
+ 	dsp_onechar(l++,*(p+i));
+}
+
+void init_1602(void)
+{
+ 	delayms(5);
+ 	write_command(0x38); 
+ 	write_command(0x38); 
+ 	write_command(0x38); 
+ 	write_command(0x06); 
+ 	write_command(0x0f); 
+ 	write_command(0x01); 
+}
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void allinit()
+{	
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0X00;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}
+
+
+/*
+#include <reg52.h>
+#include <string.h>
+#include<intrins.h>
+#define uchar unsigned char
+#define uint unsigned int
+	
+sbit RS = P2^0;
+sbit RW = P2^1; 
+sbit EN = P1^2;
+
+unsigned char text1[] = "LCD 1602 TEST" ;
+unsigned char text2[16];
+
+void delayms(int ms);
+void allinit();
+
+void init_1602(void);
+void write_command(unsigned char cmd);
+void write_data(unsigned char dat);
+void DisplayString(uchar X, uchar Y, uchar code *DData);
+void DisplayOneChar(uchar X, uchar Y, uchar DData);
+
+
+void main()
+{
+	allinit();
+	
+	init_1602();
+	delayms(15);
+	
+	text2[0]='T';text2[1]='B';text2[2]='I';text2[3]='D';text2[4]=':';text2[5]='6';
+	
+	
+	DisplayString(0,0,"LCD 1602 TEST");
+	
+	DisplayOneChar(5,1,text2[2]);
+	
+	while(1)
+	{
+	}
+}
+
+void init_1602(void)
+{
+ 	delayms(5);
+ 	write_command(0x38); 
+ 	write_command(0x38); 
+ 	write_command(0x38); 
+ 	write_command(0x06); 
+ 	write_command(0x0c); 
+ 	write_command(0x01); 
+}
+
+void write_command(unsigned char cmd)
+{
+	delayms(5); // check busy flag
+ 	EN = 0;
+ 	RS = 0;
+ 	RW = 0;
+ 	_nop_();
+ 	EN = 1;
+ 	P0 = cmd;
+ 	EN = 0;
+}
+
+void write_data(unsigned char dat)
+{
+ 	delayms(5); //busy flag check 
+	EN = 0;
+ 	RS = 1;
+	RW = 0; 
+	_nop_();
+	EN = 1;
+	P0 = dat;
+	EN = 0;
+	RS = 0;
+}
+
+void DisplayOneChar(uchar X, uchar Y, uchar DData)
+{
+	if(Y==0)
+	{
+		write_command(X+0x80); 
+		write_data(DData);	 
+	}
+	else if(Y==1) 
+	{
+		write_command(X+0xc0);
+		write_data(DData);		 
+	}
+}
+
+void DisplayString(uchar X, uchar Y, uchar code *DData)
+{
+	uchar ListLength,j;
+	ListLength = strlen(DData);	   //strlen是测字符串的长度
+	
+	for(j=0;j<ListLength;j++)
+	{
+		DisplayOneChar(X, Y, DData[j]); //显示单个字符
+		X++;
+	}
+}
+
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void allinit()
+{	
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0X00;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}
+
+*/

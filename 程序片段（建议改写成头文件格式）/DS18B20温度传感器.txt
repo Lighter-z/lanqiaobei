@@ -1,0 +1,109 @@
+sbit DQ=P1^4;
+
+/*************ds18b20****************/
+uchar temget();
+uchar read();
+void dsinit();
+void write(uchar dat);
+void Delay100us();
+void Delay500us();
+
+//while（1）上面定义
+	uchar wendu;
+
+//while（1）内写
+	wendu=temget();
+
+uchar temget()
+{
+	uchar temp;
+	uchar low,high;
+	
+	dsinit();
+	write(0xcc);
+	write(0x44);
+	Delay500us();	Delay500us();	
+
+	dsinit();
+	write(0xcc);
+	write(0xbe);
+	
+	low=read();
+	high=read();
+	
+	temp=high<<4;//0000 0101  =0101 0000
+	temp |= (low>>4); //  1010 0110   0000 0110 | 0101 0000=0101 0110
+	
+	return temp;
+}
+
+uchar read()
+{
+	uchar i;
+	uchar dat;
+	
+	for(i=0;i<8;i++)
+	{
+		DQ=0;
+		_nop_();
+		dat>>=1;
+		DQ=1;
+		if(DQ==1)
+		{
+			dat |= 0x80;// dat=dat|0x80;   0000 0000 | 1000 0000 =1000 0000
+		}
+		Delay100us();
+	}
+	return dat;
+}
+
+void write(uchar dat)
+{
+	uchar i;
+	for(i=0;i<8;i++)
+	{
+		DQ=0;
+		DQ=dat&0x01;//0100 0100 & 0000 0001 // 0000 0001
+		Delay100us();
+		DQ=1;
+		dat>>=1;//dat=dat>>1;//1001 0000//0010 0001
+	}
+}
+
+void dsinit()
+{
+	DQ=0;
+	Delay500us();
+	DQ=1;
+	Delay500us();
+}
+
+
+
+void Delay100us()		//@11.0592MHz
+{
+	unsigned char i, j;
+
+	_nop_();
+	_nop_();
+	i = 2;
+	j = 15;
+	do
+	{
+		while (--j);
+	} while (--i);
+}
+
+void Delay500us()		//@11.0592MHz
+{
+	unsigned char i, j;
+
+	_nop_();
+	_nop_();
+	i = 6;
+	j = 93;
+	do
+	{
+		while (--j);
+	} while (--i);
+}

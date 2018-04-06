@@ -1,0 +1,35 @@
+波特率：9600
+
+void UartInit(void);
+
+主函数：
+void main()
+{
+	UartInit();
+	
+	EA=1;
+	ES=1;
+	
+	allinit();
+	while(1)
+	{
+		if(RI==1)
+		{
+			RI=0;
+			P2=0X80;P0=SBUF;//发送到led灯；发送到其他模块仿照这行写，SBUF是串口1数据寄存器，里面的值就是要发送的值
+		}
+	}
+}
+
+子函数：
+void UartInit(void)		//9600bps@11.0592MHz
+{
+	SCON = 0x50;		//8位数据,可变波特率
+	AUXR |= 0x40;		//定时器1时钟为Fosc,即1T
+	AUXR &= 0xFE;		//串口1选择定时器1为波特率发生器
+	TMOD &= 0x0F;		//设定定时器1为16位自动重装方式
+	TL1 = 0xE0;		//设定定时初值
+	TH1 = 0xFE;		//设定定时初值
+	ET1 = 0;		//禁止定时器1中断
+	TR1 = 1;		//启动定时器1
+}

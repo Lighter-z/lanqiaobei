@@ -1,0 +1,182 @@
+#include<STC15F2K60S2.H>
+#include<intrins.h>
+
+#define uchar unsigned char 
+#define uint unsigned int	
+
+uchar code tab[]={0XC0,0XF9,0XA4,0XB0,0X99,0X92,0X82,0XF8,0X80,0X90,0XBF,0XFF};
+uchar yi,er,san,si,wu ,liu,qi,ba;
+
+void delayms(int ms);
+void allinit();
+void keyscan();
+void rel(uchar dong);
+void display1(uchar yi,uchar er);
+void display2(uchar san,uchar si);
+void display3(uchar wu,uchar liu);
+void display4(uchar qi,uchar ba);
+
+void main()
+{
+	allinit();
+	yi=8;er=0;san=10;si=3;wu=0;liu=11;qi=0;ba=0;
+	while(1)
+	{
+		keyscan();
+		display1(yi,er);
+		display2(san,si);
+		display3(wu,liu);
+		display4(qi,ba);
+	}
+}
+
+
+void keyscan()
+{
+	if(P30==0)//s7
+	{
+		delayms(5);
+		if(P30==0)
+		{
+			yi=5;
+		}
+		while(!P30);
+	}
+	else if(P31==0)//s6
+	{
+		delayms(5);
+		if(P31==0)
+		{
+			er=6;
+		}
+		while(!P31);
+	}
+	else if(P32==0)//s5
+	{
+		delayms(5);
+		if(P32==0)
+		{
+			san=2;
+		}
+		while(!P32);
+	}
+	else if(P33==0)//s4
+	{
+		delayms(5);
+		if(P33==0)
+		{
+			rel(2);
+		}
+		while(!P33);
+	}
+}
+
+void rel(uchar dong)
+{
+	if(dong==0)
+	{
+		P2=0XA0;P0=0X00;
+	}
+	else if(dong==1)
+	{
+		P2=0XA0;P0=0X40;
+	}
+	else if(dong==2)
+	{
+		P2=0XA0;P0=0X10;
+	}
+	else if(dong==3)
+	{
+		P2=0XA0;P0=0Xff;
+	}
+}
+
+
+void delayms(int ms)
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=845;j>0;j--);
+}
+
+void delaypp(int ms)//数码管专用延时
+{
+	int i,j;
+	for(i=ms;i>0;i--)
+		for(j=80;j>0;j--);
+}
+
+void allinit()
+{
+	P2=0XA0;
+	P0=0X00;//关闭蜂鸣器，继电器
+	
+	P2=0X80;
+	P0=0XFF;//关闭LED灯
+	
+	P2=0XC0;
+	P0=0XFF;//选择所有数码管
+	P2=0XFF;
+	P0=0XFF;//关闭所有数码管
+}
+
+void display1(uchar yi,uchar er)
+{
+		P2=0XC0;//打开位选573   U8
+		P0=0X01;//选择第一个数码管
+		P2=0XFF;//打开段选573   U7
+		P0=tab[yi];
+		delaypp(1);
+		
+		P2=0XC0;
+		P0=0X02;
+		P2=0XFF;
+		P0=tab[er];
+		delaypp(1);
+}	
+
+void display2(uchar san,uchar si)
+{
+		P2=0XC0;
+		P0=0X04;
+		P2=0XFF;
+		P0=tab[san];
+		delaypp(1);
+		
+		P2=0XC0;
+		P0=0X08;
+		P2=0XFF;
+		P0=tab[si];
+		delaypp(1);
+}
+
+void display3(uchar wu,uchar liu)
+{
+		P2=0XC0;
+		P0=0X10;
+		P2=0XFF;
+		P0=tab[wu];
+		delaypp(1);
+		
+		P2=0XC0;
+		P0=0X20;
+		P2=0XFF;
+		P0=tab[liu];
+		delaypp(1);
+}
+
+void display4(uchar qi,uchar ba)
+{
+		P2=0XC0;
+		P0=0X40;
+		P2=0XFF;
+		P0=tab[qi];
+		delaypp(1);
+		
+		P2=0XC0;
+		P0=0X80;
+		P2=0XFF;
+		P0=tab[ba];
+		delaypp(1);
+}
+

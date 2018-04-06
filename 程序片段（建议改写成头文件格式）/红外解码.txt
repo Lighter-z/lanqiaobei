@@ -1,0 +1,130 @@
+sbit IR=P1^1;
+sbit IIR=P3^2;
+
+uchar irdata[33];
+uchar ircord[4];
+bit deal_ok,ir_ok;
+uchar time,point=10;
+
+void delayms(int ms);
+void allinit();
+void display1(uchar yi,uchar er);
+void display2(uchar san,uchar si);
+void display3(uchar wu,uchar liu);
+void display4(uchar qi,uchar ba);
+
+void deal();
+void change();
+
+
+void init()
+{
+	allinit();
+	TMOD=0x02;
+	TCON=0X11;	
+	TH0=0;
+	TL0=0;//清零
+	ET0=1;//允许定时器0中断
+	EX0=1;//表示允许外部中断0申请中断
+	EA=1;//
+}
+
+void main()
+{
+	allinit();
+	yi=11;er=11;san=11;si=11;wu=11;liu=0;qi=0;ba=0;
+	
+	init();
+	
+	while(1)
+	{
+		if(ir_ok)
+		{
+			deal();
+			ir_ok=0;
+		}
+		else
+		{
+			change();
+		}
+		
+		ba=point;
+		display1(yi,er);
+		display2(san,si);
+		display3(wu,liu);
+		display4(qi,ba);
+	}
+}
+
+
+void time0() interrupt 0
+{
+	static uchar i;
+	static bit startflag;
+	
+	if(startflag)
+	{
+		if(time<63&&time>=33)i=0;
+		irdata[i]=time;
+		time=0;
+		i++;
+		if(i==33)
+		{
+			ir_ok=1;
+			i=0;
+		}
+	}
+	else
+	{
+		time=0;
+		startflag=1;
+	}
+}
+
+void timer0() interrupt 1	
+{
+	time++;IIR=IR;
+}
+
+void deal()
+{
+	uchar i,j,k;
+	uchar cord,value;
+	k=1;
+	for(i=0;i<4;i++)
+	{
+		for(j=0;j<8;j++)
+		{
+			cord=irdata[k];
+			if(cord>7)
+				value|=0x80; 
+			else
+				value=value;
+	 		if(j<7)
+				value>>=1;
+			k++;
+		}
+		ircord[i]=value;
+		value=0;
+	}
+	deal_ok=1;
+}
+
+void change()
+{
+	switch(ircord[2])
+	{
+		 case 0x0c:point=1;break;看这个//0x按键编码：point=具体要的数
+		 case 0x18:point=2;break;
+		 case 0x5e:point=3;break;
+		 case 0x08:point=4;break;
+		 case 0x1c:point=5;break;
+		 case 0x5a:point=6;break;
+		 case 0x42:point=7;break;
+		 case 0x52:point=8;break;
+		 case 0x4a:point=9;break;
+     case 0x16:point=0;break;
+		 default:break;
+	}
+	deal_ok=0;
+}
