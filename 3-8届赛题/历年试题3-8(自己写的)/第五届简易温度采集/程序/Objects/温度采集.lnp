@@ -1,4 +1,0 @@
-".\Objects\STARTUP.obj",
-".\Objects\main.obj" 
-TO ".\Objects\温度采集" 
-PRINT(".\Listings\温度采集.m51") RAMSIZE(256) 

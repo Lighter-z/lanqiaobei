@@ -1,4 +1,0 @@
-".\Objects\STARTUP.obj",
-".\Objects\main.obj" 
-TO ".\Objects\电子钟" 
-PRINT(".\Listings\电子钟.m51") RAMSIZE(256) 
